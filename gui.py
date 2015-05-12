@@ -205,13 +205,18 @@ class MainWindow(QtGui.QWidget):
         label_n = QtGui.QLabel("enter parameter n (prime number):")
 
         self.val_a = QtGui.QTextEdit()
+        self.val_a.setTabChangesFocus(True)
         self.val_b = QtGui.QTextEdit()
+        self.val_b.setTabChangesFocus(True)
         self.val_n = QtGui.QTextEdit()
+        self.val_n.setTabChangesFocus(True)
+
         button = QtGui.QPushButton("Generate curve") 
+        button.clicked.connect(self.generate_curve)
+        
         self.go_ahead = QtGui.QLabel("Curve defined. Please select a tab based on your need.")
         self.go_ahead.hide()
 
-        button.clicked.connect(self.generate_curve)
         self.val_a.setMaximumHeight(label_a.sizeHint().height()*2)
         self.val_b.setMaximumHeight(label_b.sizeHint().height()*2)
         self.val_n.setMaximumHeight(label_n.sizeHint().height()*2)
@@ -229,22 +234,48 @@ class MainWindow(QtGui.QWidget):
 
         #labels for ECDSA
         label_privKey = QtGui.QLabel("enter private key:")
+        label_pubKey = QtGui.QLabel("public key:")
+
         button_pubKey = QtGui.QPushButton("generate public key") 
-        button.clicked.connect(self.generatePublicKey) 
+        button.clicked.connect(self.generatePublicKey)
+
         label_msg = QtGui.QLabel("enter message:")
-        
+        label_signature = QtGui.QLabel("Signature:")
+
+        button_gen_sign = QtGui.QPushButton("generate signature")
+        button.clicked.connect(self.generateSignature)
+         
         self.val_priv = QtGui.QTextEdit()
+        self.val_priv.setTabChangesFocus(True)
+
         self.val_pub = QtGui.QTextEdit()
+        self.val_pub.setTabChangesFocus(True)
+        self.val_pub.setReadOnly(True)
+
         self.val_msg = QtGui.QTextEdit()
+        self.val_msg.setTabChangesFocus(True)
+
         self.val_sign = QtGui.QTextEdit()
+        self.val_sign.setTabChangesFocus(True)
+
         self.val_priv.setMaximumHeight(label_privKey.sizeHint().height()*2)
-        self.val_pub.setMaximumHeight(label_privKey.sizeHint().height()*2)
+        self.val_pub.setMaximumHeight(label_pubKey.sizeHint().height()*2)
+        self.val_msg.setMaximumHeight(label_privKey.sizeHint().height()*7)
+        self.val_sign.setMaximumHeight(label_privKey.sizeHint().height()*7)
         
+        #add widgets to ecdsa tab
         p2_vertical.addWidget(label_privKey)
         p2_vertical.addWidget(self.val_priv)
-        p2_vertical.addStretch(1)
         p2_vertical.addWidget(button_pubKey)
+        p2_vertical.addWidget(label_pubKey)
         p2_vertical.addWidget(self.val_pub)
+        p2_vertical.addWidget(label_msg)
+        p2_vertical.addWidget(self.val_msg)
+        p2_vertical.addWidget(button_gen_sign)
+        p2_vertical.addStretch(1)
+        p2_vertical.addWidget(label_signature)
+        p2_vertical.addWidget(self.val_sign)
+        
 
         vbox = QtGui.QVBoxLayout() 
         vbox.addWidget(self.tab_widget) 
@@ -280,6 +311,9 @@ class MainWindow(QtGui.QWidget):
         data = str(self.val_msg.toPlainText)
         hash_datahex = hashlib.sha224(data).hexdigest()
         hash_data = int("0x"+hash_datahex, 16)
+        pass
+
+    def generateSignature():
         pass
 
 app = QtGui.QApplication(sys.argv) 
