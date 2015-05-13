@@ -211,8 +211,8 @@ class MainWindow(QtGui.QWidget):
         self.val_n = QtGui.QTextEdit()
         self.val_n.setTabChangesFocus(True)
 
-        button = QtGui.QPushButton("Generate curve") 
-        button.clicked.connect(self.generate_curve)
+        button_curve = QtGui.QPushButton("Generate curve") 
+        button_curve.clicked.connect(self.generate_curve)
         
         self.go_ahead = QtGui.QLabel("Curve defined. Please select a tab based on your need.")
         self.go_ahead.hide()
@@ -230,20 +230,23 @@ class MainWindow(QtGui.QWidget):
         p1_vertical.addWidget(self.val_n) 
         p1_vertical.addStretch(1)
         p1_vertical.addWidget(self.go_ahead)
-        p1_vertical.addWidget(button)
+        p1_vertical.addWidget(button_curve)
 
         #labels for ECDSA
         label_privKey = QtGui.QLabel("enter private key:")
         label_pubKey = QtGui.QLabel("public key:")
 
         button_pubKey = QtGui.QPushButton("generate public key") 
-        button.clicked.connect(self.generatePublicKey)
+        button_pubKey.clicked.connect(self.generatePublicKey)
 
         label_msg = QtGui.QLabel("enter message:")
         label_signature = QtGui.QLabel("Signature:")
 
         button_gen_sign = QtGui.QPushButton("generate signature")
-        button.clicked.connect(self.generateSignature)
+        button_gen_sign.clicked.connect(self.generateSignature)
+
+        button_verify = QtGui.QPushButton("verify")
+        button_verify.clicked.connect(self.verifySignature)
          
         self.val_priv = QtGui.QTextEdit()
         self.val_priv.setTabChangesFocus(True)
@@ -257,6 +260,9 @@ class MainWindow(QtGui.QWidget):
 
         self.val_sign = QtGui.QTextEdit()
         self.val_sign.setTabChangesFocus(True)
+
+        self.val_verify = QtGui.QTextEdit()
+        self.val_verify.setTabChangesFocus(True)
 
         self.val_priv.setMaximumHeight(label_privKey.sizeHint().height()*2)
         self.val_pub.setMaximumHeight(label_pubKey.sizeHint().height()*2)
@@ -272,9 +278,11 @@ class MainWindow(QtGui.QWidget):
         p2_vertical.addWidget(label_msg)
         p2_vertical.addWidget(self.val_msg)
         p2_vertical.addWidget(button_gen_sign)
-        p2_vertical.addStretch(1)
         p2_vertical.addWidget(label_signature)
         p2_vertical.addWidget(self.val_sign)
+        p2_vertical.addStretch(1)
+        p2_vertical.addWidget(button_verify)
+        p2_vertical.addWidget(self.val_verify)
         
 
         vbox = QtGui.QVBoxLayout() 
@@ -287,7 +295,7 @@ class MainWindow(QtGui.QWidget):
         self.move((screen.width()-size.width())/2, (screen.height()-size.height())/2) 
 
     def generate_curve(self):
-        global ec, g, dsa
+        global ec, g, dsa, r
         a = int(self.val_a.toPlainText())
         b = int(self.val_b.toPlainText())
         q = int(self.val_n.toPlainText())
@@ -300,20 +308,30 @@ class MainWindow(QtGui.QWidget):
         self.go_ahead.show()
 
     def generatePublicKey(self):
-        global priv
-        priv = int(self.val_priv.toPlainText())
-        pub = dsa.gen(priv)
-        val_pub.setText(pub)
-
+        global privKey, pub
+        privKey = int(self.val_priv.toPlainText())
+        pub = dsa.gen(privKey)
+        self.val_pub.setText(str(pub))
         pass
 
-    def hashMessage(self):
-        data = str(self.val_msg.toPlainText)
+    def generateSignature(self):
+        global sig
+        data = str(self.val_msg.toPlainText())
         hash_datahex = hashlib.sha224(data).hexdigest()
-        hash_data = int("0x"+hash_datahex, 16)
+        hashval = int("0x"+hash_datahex, 16)
+        sig = dsa.sign(hashval, privKey, r)
+        self.val_sign.setText(str(sig))
         pass
 
-    def generateSignature():
+    def verifySignature(self):
+        msg_rec = str(self.val_msg.toPlainText())
+        hash_datahex = hashlib.sha224(msg_rec).hexdigest()
+        hashval = int("0x"+hash_datahex, 16)
+        ver = dsa.validate(hashval, sig, pub)
+        if ver == True:
+            self.val_verify.setText("Message verified to be authentic.")
+        else :
+            self.val_verify.setText("Message not authentic!")
         pass
 
 app = QtGui.QApplication(sys.argv) 
