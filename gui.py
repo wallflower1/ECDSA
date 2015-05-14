@@ -6,6 +6,7 @@ import hashlib
 import ellipticCurve
 import func
 import ecdsa
+import random
 
 class MainWindow(QtGui.QWidget): 
     def __init__(self): 
@@ -47,7 +48,7 @@ class MainWindow(QtGui.QWidget):
         button_curve = QtGui.QPushButton("Generate curve") 
         button_curve.clicked.connect(self.generate_curve)
         
-        self.go_ahead = QtGui.QLabel("Curve defined. Please select a tab based on your need.")
+        self.go_ahead = QtGui.QLabel("Curve defined. Switch Tab to ECDSA.")
         self.go_ahead.hide()
 
         self.val_a.setMaximumHeight(label_a.sizeHint().height()*2)
@@ -132,10 +133,10 @@ class MainWindow(QtGui.QWidget):
         a = int(self.val_a.toPlainText())
         b = int(self.val_b.toPlainText())
         q = int(self.val_n.toPlainText())
-        r = 7
+        r = random.randint(1,q)
         ec = ellipticCurve.EC(a, b, q)
         # produce generator point 
-        g, _ = ec.at(7)
+        g, _ = ec.at(r)
         assert ec.order(g) <= ec.q
         dsa = ecdsa.DSA(ec, g)
         self.go_ahead.show()
