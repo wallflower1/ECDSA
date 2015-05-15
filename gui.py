@@ -182,9 +182,13 @@ class MainWindow(QtGui.QWidget):
 
     def generatePublicKey(self):
         global privKey, pub
-        privKey = int(self.val_priv.toPlainText())
-        pub = dsa.gen(privKey)
-        self.val_pub.setText(str(pub))
+        try:
+            privKey = int(self.val_priv.toPlainText())
+            pub = dsa.gen(privKey)
+            self.val_pub.setText(str(pub))
+        except:
+            self.errorDiag("Invalid private key. Enter again.")
+            return
         pass
 
     def generateSignature(self):
