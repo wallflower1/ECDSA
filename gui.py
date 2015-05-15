@@ -8,6 +8,45 @@ import func
 import ecdsa
 import random
 
+class PopupDialog(QtGui.QWidget):
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self)
+        
+        self.initUI()
+        pass
+
+    def initUI(self):
+        self.setGeometry(0,0,250,100) 
+        self.setWindowTitle("Input Error") 
+        self.setWindowIcon(QtGui.QIcon("Error.png")) 
+        center(self) 
+        self.label_error = QtGui.QLabel()
+
+        button_ok = QtGui.QPushButton("OK") 
+        button_ok.clicked.connect(self.close)
+
+        hor = QtGui.QHBoxLayout()
+        hor.addStretch(1)
+        hor.addWidget(self.label_error)
+        hor.addStretch(1)
+
+        hbox = QtGui.QHBoxLayout()
+        hbox.addStretch(1)
+        hbox.addWidget(button_ok)
+
+        vbox = QtGui.QVBoxLayout()
+        vbox.addStretch(1)
+        vbox.addLayout(hor)
+        vbox.addStretch(1)
+        vbox.addLayout(hbox)
+        
+        self.setLayout(vbox)   
+       
+        pass
+    def setval(self,errormsg):
+        self.label_error.setText(errormsg)
+        pass
+
 class MainWindow(QtGui.QWidget): 
     def __init__(self): 
         QtGui.QWidget.__init__(self) 
@@ -18,7 +57,7 @@ class MainWindow(QtGui.QWidget):
         self.setWindowIcon(QtGui.QIcon("icon.png")) 
         self.resize(500,550) 
         self.setMinimumSize(500,550) 
-        self.center() 
+        center(self) 
 
         #init labels
         self.tab_widget = QtGui.QTabWidget() 
@@ -122,19 +161,19 @@ class MainWindow(QtGui.QWidget):
         vbox = QtGui.QVBoxLayout() 
         vbox.addWidget(self.tab_widget) 
         self.setLayout(vbox) 
-    #Start window in the center of the screen
-    def center(self): 
-        screen = QtGui.QDesktopWidget().screenGeometry() 
-        size = self.geometry() 
-        self.move((screen.width()-size.width())/2, (screen.height()-size.height())/2) 
-
+    
+    
     def generate_curve(self):
         global ec, g, dsa, r
-        a = int(self.val_a.toPlainText())
-        b = int(self.val_b.toPlainText())
-        q = int(self.val_n.toPlainText())
+        try:
+            a = int(self.val_a.toPlainText())
+            b = int(self.val_b.toPlainText())
+            q = int(self.val_n.toPlainText())
+            ec = ellipticCurve.EC(a, b, q)
+        except:
+            self.errorDiag("Enter parameter values correctly. Curve not defined.")
+            return
         r = random.randint(1,q)
-        ec = ellipticCurve.EC(a, b, q)
         # produce generator point 
         g, _ = ec.at(r)
         assert ec.order(g) <= ec.q
@@ -167,6 +206,17 @@ class MainWindow(QtGui.QWidget):
         else :
             self.val_verify.setText("Message not authentic!")
         pass
+    def errorDiag(self, errormsg):
+        self.dialog = PopupDialog()
+        self.dialog.setval(errormsg)
+        self.dialog.show()
+        pass
+
+#Start window in the center of the screen
+def center(widget): 
+        screen = QtGui.QDesktopWidget().screenGeometry() 
+        size = widget.geometry() 
+        widget.move((screen.width()-size.width())/2, (screen.height()-size.height())/2) 
 
 app = QtGui.QApplication(sys.argv) 
 frame = MainWindow() 
